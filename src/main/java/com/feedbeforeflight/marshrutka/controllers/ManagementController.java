@@ -23,7 +23,7 @@ public class ManagementController {
         return "management/index";
     }
 
-    @GetMapping("management/points")
+    @GetMapping("/points")
     public String getAllPoints(Model model) {
         model.addAttribute("points", pointRepository.findAll());
         return "management/points";

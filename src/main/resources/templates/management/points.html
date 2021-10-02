@@ -3,10 +3,34 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Marshrutka project / Management / Points</title>
+    <link th:href = "@{/css/bootstrap.min.css}" rel="stylesheet">
 </head>
 <body>
-<div th:each="point : ${points}">
-    <a th:text="${point.getName() + ', ' + point.getId()}" th:href="@{management/points/{id}(id=${point.getId()})}"></a>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/management">Management</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Points</li>
+    </ol>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <table class = "table table-responsive-sm table-bordered table-striped table-hover table-sm">
+            <tr class="thead-inverse">
+                <th>ID</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+            <tr th:each="point : ${points}">
+                <td th:text="${point.getId()}"></td>
+                <td th:text="${point.getName()}"></td>
+                <td><a th:href="@{management/points/{id}(id=${point.getId()})}">edit...</a></td>
+            </tr>
+        </table>
+    </div>
 </div>
+
+
 </body>
 </html>
