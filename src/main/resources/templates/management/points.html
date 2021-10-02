@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Marshrutka project / Management / Points</title>
+</head>
+<body>
+<div th:each="point : ${points}">
+    <a th:text="${point.getName() + ', ' + point.getId()}" th:href="@{management/points/{id}(id=${point.getId()})}"></a>
+</div>
+</body>
+</html>
