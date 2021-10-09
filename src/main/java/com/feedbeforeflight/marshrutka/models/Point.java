@@ -16,9 +16,14 @@ public class Point {
     @Column(name = "name", length = 50, nullable = false, unique = true)
     private String name;
 
-    public int getId() {
-        return id;
-    }
+    @Column(name = "active", nullable = false)
+    private boolean active;
+
+    public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
+
+    public int getId() { return id; }
 
     public void setId(int id) {
         this.id = id;
