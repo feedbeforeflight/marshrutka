@@ -9,11 +9,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.feedbeforeflight</groupId>
-    <artifactId>Marshrutka</artifactId>
+    <artifactId>marshrutka</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
-    <name>Marshrutka</name>
-    <description>Marshrutka</description>
+    <packaging>jar</packaging>
+    <name>marshrutka</name>
+    <description>marshrutka</description>
     <properties>
         <java.version>11</java.version>
     </properties>
@@ -67,11 +67,13 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.feedbeforeflight.marshrutka.MarshrutkaApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
