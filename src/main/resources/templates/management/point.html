@@ -16,7 +16,7 @@
 </nav>
 
 <div class="container">
-    <form th:object="${point}">
+    <form th:object="${point}" th:method="POST" th:action="@{/points/{id}(id=${point.getId()})}" >
         <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" th:field="*{active}" id="active">
             <label class="custom-control-label" for="active">Active</label>
@@ -36,6 +36,8 @@
             </div>
         </div>
 
+        <br/>
+        <input type="submit" value="Update"/>
     </form>
 </div>
 
