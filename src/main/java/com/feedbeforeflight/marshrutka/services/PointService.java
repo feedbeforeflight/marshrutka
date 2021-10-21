@@ -10,13 +10,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Transactional
 @Service
 public class PointService {
 
     private final PointRepository pointRepository;
 
-    @Autowired
     public PointService(PointRepository pointRepository) {
         this.pointRepository = pointRepository;
     }

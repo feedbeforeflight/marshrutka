@@ -1,11 +1,13 @@
 package com.feedbeforeflight.marshrutka.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "Points")
+@AllArgsConstructor
 public class Point {
 
     @Id
@@ -18,6 +20,8 @@ public class Point {
 
     @Column(name = "active", nullable = false)
     private boolean active;
+
+    public Point() {}
 
     public boolean isActive() { return active; }
 
