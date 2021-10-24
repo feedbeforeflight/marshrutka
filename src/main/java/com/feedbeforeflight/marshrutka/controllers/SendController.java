@@ -1,9 +1,10 @@
 package com.feedbeforeflight.marshrutka.controllers;
 
-import com.feedbeforeflight.marshrutka.models.Message;
-import com.feedbeforeflight.marshrutka.models.Point;
+import com.feedbeforeflight.marshrutka.transport.BrokerPoint;
+import com.feedbeforeflight.marshrutka.transport.Message;
 import com.feedbeforeflight.marshrutka.services.TransferException;
 import com.feedbeforeflight.marshrutka.services.TransferService;
+import com.feedbeforeflight.marshrutka.transport.MessageBrokerRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,33 +16,35 @@ import java.util.Optional;
 public class SendController {
 
     private final TransferService transferService;
+    private final MessageBrokerRepository messageBrokerRepository;
 
-    public SendController(TransferService transferService) {
+    public SendController(TransferService transferService, MessageBrokerRepository messageBrokerRepository) {
         this.transferService = transferService;
+        this.messageBrokerRepository = messageBrokerRepository;
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<String> sendDefault(@PathVariable(name = "id") int id) {
+    @PostMapping("/{sourceName}")
+    public ResponseEntity<String> sendDefault(@PathVariable(name = "sourceName") String sourceName) {
 
-        return new ResponseEntity<>("", HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<>(sourceName, HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PostMapping("/{srcId}/direct/{destId}")
+    @PostMapping("/{sourceName}/direct/{destinationName}")
     public ResponseEntity<String> sendDirect(
-            @PathVariable(name = "srcId") int srcId,
-            @PathVariable(name = "destId") int destId,
+            @PathVariable(name = "sourceName") String sourceName,
+            @PathVariable(name = "destinationName") String destinationName,
             @RequestBody String requestBody) {
 
-        Point sourcePoint = transferService.getPoint(srcId);
-        if (sourcePoint == null) {
+        Optional<BrokerPoint> sourcePoint = messageBrokerRepository.getPoint(sourceName);
+        if (sourcePoint.isEmpty()) {
             return new ResponseEntity<>("Source point not found", HttpStatus.NOT_FOUND);
         }
-        Point destinationPoint = transferService.getPoint(srcId);
-        if (destinationPoint == null) {
+        Optional<BrokerPoint> destinationPoint = messageBrokerRepository.getPoint(destinationName);
+        if (destinationPoint.isEmpty()) {
             return new ResponseEntity<>("Destination point not found", HttpStatus.NOT_FOUND);
         }
 
-        Message message = new Message(sourcePoint, destinationPoint, requestBody);
+        Message message = new Message(sourcePoint.get(), destinationPoint.get(), requestBody);
 
         try {
             transferService.sendDirect(message);

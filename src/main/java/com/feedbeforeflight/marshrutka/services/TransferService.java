@@ -1,8 +1,9 @@
 package com.feedbeforeflight.marshrutka.services;
 
-import com.feedbeforeflight.marshrutka.dao.PointRepository;
-import com.feedbeforeflight.marshrutka.models.Message;
-import com.feedbeforeflight.marshrutka.models.Point;
+import com.feedbeforeflight.marshrutka.transport.BrokerPoint;
+import com.feedbeforeflight.marshrutka.transport.Message;
+import com.feedbeforeflight.marshrutka.transport.MessageBroker;
+import com.feedbeforeflight.marshrutka.transport.MessageBrokerServiceNotificationClient;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -12,26 +13,22 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 @Service
-public class TransferService {
+public class TransferService implements MessageBrokerServiceNotificationClient {
 
-    private final PointRepository pointRepository;
+    private final MessageBroker messageBroker;
 
     private final AmqpTemplate amqpTemplate;
     private final AmqpAdmin amqpAdmin;
 
-    public TransferService(PointRepository pointRepository, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
-        this.pointRepository = pointRepository;
+    public TransferService(MessageBroker messageBroker, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
+        this.messageBroker = messageBroker;
         this.amqpTemplate = amqpTemplate;
         this.amqpAdmin = amqpAdmin;
     }
 
     @PostConstruct
     public void Initialize() {
-
-    }
-
-    public Point getPoint(int id) {
-        return pointRepository.findById(id).orElse(null);
+        messageBroker.registerNotificationClient(this);
     }
 
     public void sendDirect(Message message) throws TransferException {
@@ -43,10 +40,14 @@ public class TransferService {
         }
     }
 
-    public Message receive(Point receiver) throws TransferException{
+    public Message receive(BrokerPoint receiver) throws TransferException{
         return amqpTemplate.receiveAndConvert(
                 receiver.getName(),
                 new ParameterizedTypeReference<Message>() {});
     }
 
+    @Override
+    public boolean messageReceived(Message message) {
+        return false;
+    }
 }

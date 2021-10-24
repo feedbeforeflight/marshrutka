@@ -1,7 +1,7 @@
 package com.feedbeforeflight.marshrutka.controllers;
 
-import com.feedbeforeflight.marshrutka.models.Point;
-import com.feedbeforeflight.marshrutka.services.PointService;
+import com.feedbeforeflight.marshrutka.models.PointEntity;
+import com.feedbeforeflight.marshrutka.services.PointEntityService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,7 +28,7 @@ class ManagementControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private PointService pointService;
+    private PointEntityService pointService;
 
     @Test
     public void contextLoads() {
@@ -48,9 +48,9 @@ class ManagementControllerTest {
     @Test
     @SneakyThrows
     void getAllPoints() {
-        Point point1 = new Point(1, "point1", true);
-        Point point2 = new Point(3, "point2", false);
-        Point point3 = new Point(51, "point120", true);
+        PointEntity point1 = new PointEntity(1, "point1", true);
+        PointEntity point2 = new PointEntity(3, "point2", false);
+        PointEntity point3 = new PointEntity(51, "point120", true);
         Mockito.when(pointService.getAll()).thenReturn(List.of(point1, point2, point3));
 
         mockMvc.perform(get("/management/points"))
@@ -66,7 +66,7 @@ class ManagementControllerTest {
     @Test
     @SneakyThrows
     void showPoint() {
-        Mockito.when(pointService.getById(120)).thenReturn(new Point(120, "mockedPoint", true));
+        Mockito.when(pointService.getById(120)).thenReturn(new PointEntity(120, "mockedPoint", true));
 
         mockMvc.perform(get("/management/points/120"))
                 .andDo(print())
@@ -99,11 +99,11 @@ class ManagementControllerTest {
                         status().isFound(),
                         redirectedUrl("/management/points"));
 
-        ArgumentCaptor<Point> pointArgumentCaptor = ArgumentCaptor.forClass(Point.class);
+        ArgumentCaptor<PointEntity> pointArgumentCaptor = ArgumentCaptor.forClass(PointEntity.class);
 
         Mockito.verify(pointService, Mockito.times(1)).updatePoint(pointArgumentCaptor.capture());
         assertThat(pointArgumentCaptor.getAllValues(), hasSize(1));
-        Point testPoint = pointArgumentCaptor.getValue();
+        PointEntity testPoint = pointArgumentCaptor.getValue();
         assertThat(testPoint.getId(), is(24));
         assertThat(testPoint.getName(), is("updatedPoint"));
         assertThat(testPoint.isActive(), is(true));

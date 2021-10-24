@@ -1,8 +1,7 @@
 package com.feedbeforeflight.marshrutka.controllers;
 
-import com.feedbeforeflight.marshrutka.models.Point;
-import com.feedbeforeflight.marshrutka.dao.PointRepository;
-import com.feedbeforeflight.marshrutka.services.PointService;
+import com.feedbeforeflight.marshrutka.models.PointEntity;
+import com.feedbeforeflight.marshrutka.services.PointEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/management")
 public class ManagementController {
 
-    private final PointService pointService;
+    private final PointEntityService pointService;
 
     @Autowired
-    public ManagementController(PointService pointService) {
+    public ManagementController(PointEntityService pointService) {
         this.pointService = pointService;
     }
 
@@ -32,7 +31,7 @@ public class ManagementController {
 
     @GetMapping("/points/{id}")
     public String showPoint(@PathVariable("id") int id, Model model) {
-        Point point = pointService.getById(id);
+        PointEntity point = pointService.getById(id);
         if (point == null) {
             return "redirect:/management/points";
         }
@@ -43,13 +42,13 @@ public class ManagementController {
 
     @GetMapping("/points/new")
     public String newPoint(Model model) {
-        Point point = new Point();
+        PointEntity point = new PointEntity();
         model.addAttribute("point", point);
         return "management/point";
     }
 
     @PostMapping("/points/{id}")
-    public String updatePoint(@ModelAttribute("point") Point point) {
+    public String updatePoint(@ModelAttribute("point") PointEntity point) {
         pointService.updatePoint(point);
 
         return "redirect:/management/points";

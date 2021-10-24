@@ -1,5 +1,6 @@
-package com.feedbeforeflight.marshrutka.models;
+package com.feedbeforeflight.marshrutka.transport;
 
+import com.feedbeforeflight.marshrutka.models.PointEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +10,11 @@ public class Message {
 
     @Getter
     @Setter
-    private Point source;
+    private BrokerPoint source;
     @Getter
     @Setter
-    private Point destination;
+    private BrokerPoint destination;
 
     @Getter
-    @Setter
     private String payload;
 }

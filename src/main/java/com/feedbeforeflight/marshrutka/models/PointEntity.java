@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Points")
 @AllArgsConstructor
-public class Point {
+public class PointEntity {
 
     @Id
     @GeneratedValue
@@ -21,7 +21,9 @@ public class Point {
     @Column(name = "active", nullable = false)
     private boolean active;
 
-    public Point() {}
+    public PointEntity() {
+        System.out.println("Constructed point entity");
+    }
 
     public boolean isActive() { return active; }
 

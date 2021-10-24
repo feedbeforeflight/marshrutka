@@ -1,7 +1,7 @@
 package com.feedbeforeflight.marshrutka.services;
 
 import com.feedbeforeflight.marshrutka.dao.PointRepository;
-import com.feedbeforeflight.marshrutka.models.Point;
+import com.feedbeforeflight.marshrutka.models.PointEntity;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,13 +17,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @SpringBootTest
-class PointServiceTest {
+class PointEntityServiceTest {
 
     @MockBean
     private PointRepository pointRepository;
 
     @Autowired
-    private PointService pointService;
+    private PointEntityService pointService;
 
     @Test
     public void contextLoads() {
@@ -32,12 +32,12 @@ class PointServiceTest {
 
     @Test
     void getAll() {
-        Point point1 = new Point(1, "point1", true);
-        Point point2 = new Point(3, "point2", false);
-        Point point3 = new Point(51, "point120", true);
+        PointEntity point1 = new PointEntity(1, "point1", true);
+        PointEntity point2 = new PointEntity(3, "point2", false);
+        PointEntity point3 = new PointEntity(51, "point120", true);
         Mockito.when(pointRepository.findAll()).thenReturn(List.of(point1, point2, point3));
 
-        List<Point> points = pointService.getAll();
+        List<PointEntity> points = pointService.getAll();
 
         Mockito.verify(pointRepository, Mockito.times(1)).findAll();
         assertThat(points, hasSize(3));
@@ -51,10 +51,10 @@ class PointServiceTest {
 
     @Test
     void getById() {
-        Point originalPoint = new Point();
+        PointEntity originalPoint = new PointEntity();
         Mockito.when(pointRepository.findById(1)).thenReturn(Optional.of(originalPoint));
 
-        Point testPoint = pointService.getById(1);
+        PointEntity testPoint = pointService.getById(1);
 
         Mockito.verify(pointRepository, Mockito.times(1)).findById(1);
         assertThat(testPoint, CoreMatchers.sameInstance(originalPoint));
@@ -62,21 +62,21 @@ class PointServiceTest {
 
     @Test
     void createPoint() {
-        Point originalPoint = new Point();
+        PointEntity originalPoint = new PointEntity();
 
         pointService.createPoint(originalPoint);
 
-        ArgumentCaptor<Point> pointArgumentCaptor = ArgumentCaptor.forClass(Point.class);
+        ArgumentCaptor<PointEntity> pointArgumentCaptor = ArgumentCaptor.forClass(PointEntity.class);
 
         Mockito.verify(pointRepository, Mockito.times(1)).save(pointArgumentCaptor.capture());
         assertThat(pointArgumentCaptor.getAllValues(), hasSize(1));
-        Point testPoint = pointArgumentCaptor.getValue();
+        PointEntity testPoint = pointArgumentCaptor.getValue();
         assertThat(testPoint, sameInstance(originalPoint));
     }
 
     @Test
     void updatePoint() {
-        Point point = new Point();
+        PointEntity point = new PointEntity();
         pointService.updatePoint(point);
 
         Mockito.verify(pointRepository, Mockito.times(1)).save(point);
@@ -84,7 +84,7 @@ class PointServiceTest {
 
     @Test
     void deletePoint() {
-        Point point = new Point();
+        PointEntity point = new PointEntity();
         pointService.deletePoint(point);
 
         Mockito.verify(pointRepository, Mockito.times(1)).delete(point);

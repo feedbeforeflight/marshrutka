@@ -1,41 +1,39 @@
 package com.feedbeforeflight.marshrutka.services;
 
 import com.feedbeforeflight.marshrutka.dao.PointRepository;
-import com.feedbeforeflight.marshrutka.models.Point;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.feedbeforeflight.marshrutka.models.PointEntity;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class PointService {
+public class PointEntityService {
 
     private final PointRepository pointRepository;
 
-    public PointService(PointRepository pointRepository) {
+    public PointEntityService(PointRepository pointRepository) {
         this.pointRepository = pointRepository;
     }
 
-    public List<Point> getAll() {
+    public List<PointEntity> getAll() {
         return StreamSupport.stream(pointRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 
-    public Point getById(int id) {
+    public PointEntity getById(int id) {
         return pointRepository.findById(id).orElse(null);
     }
 
-    public void createPoint(Point point) {
+    public void createPoint(PointEntity point) {
         pointRepository.save(point);
     }
 
-    public void updatePoint(Point point) {
+    public void updatePoint(PointEntity point) {
         pointRepository.save(point);
     }
 
-    public void deletePoint(Point point) {
+    public void deletePoint(PointEntity point) {
         pointRepository.delete(point);
     }
 
