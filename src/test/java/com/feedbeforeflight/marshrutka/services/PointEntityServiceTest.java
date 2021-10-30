@@ -32,9 +32,9 @@ class PointEntityServiceTest {
 
     @Test
     void getAll() {
-        PointEntity point1 = new PointEntity(1, "point1", true);
-        PointEntity point2 = new PointEntity(3, "point2", false);
-        PointEntity point3 = new PointEntity(51, "point120", true);
+        PointEntity point1 = new PointEntity(1, "point1", true, "");
+        PointEntity point2 = new PointEntity(3, "point2", false, "");
+        PointEntity point3 = new PointEntity(51, "point120", true, "");
         Mockito.when(pointRepository.findAll()).thenReturn(List.of(point1, point2, point3));
 
         List<PointEntity> points = pointService.getAll();

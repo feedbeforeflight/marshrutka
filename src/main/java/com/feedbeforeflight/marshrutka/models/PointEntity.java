@@ -21,6 +21,9 @@ public class PointEntity {
     @Column(name = "active", nullable = false)
     private boolean active;
 
+    @Column(name = "receive_url")
+    private String receiveURL;
+
     public PointEntity() {
         System.out.println("Constructed point entity");
     }
@@ -43,4 +46,11 @@ public class PointEntity {
         this.name = name;
     }
 
+    public String getReceiveURL() {
+        return receiveURL;
+    }
+
+    public void setReceiveURL(String receiveURL) {
+        this.receiveURL = receiveURL;
+    }
 }

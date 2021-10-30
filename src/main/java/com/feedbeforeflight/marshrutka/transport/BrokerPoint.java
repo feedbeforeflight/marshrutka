@@ -1,8 +1,12 @@
 package com.feedbeforeflight.marshrutka.transport;
 
+import com.feedbeforeflight.marshrutka.models.PointEntity;
+
 public interface BrokerPoint {
 
-    public int getId();
-    public String getName();
+    int getId();
+    String getName();
 
+    void init(PointEntity pointEntity);
+    void powerOff();
 }

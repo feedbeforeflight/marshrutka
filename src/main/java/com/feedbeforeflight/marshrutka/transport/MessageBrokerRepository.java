@@ -4,8 +4,8 @@ import java.util.Optional;
 
 public interface MessageBrokerRepository {
 
-    public Optional<BrokerPoint> getPoint(String name);
+    Optional<BrokerPoint> getPoint(String name);
 
-    public Message wrapMessage(String sourcePointName, String destinationPointName, String payload);
+    Message wrapMessage(String sourcePointName, String destinationPointName, String payload);
 
 }

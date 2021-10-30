@@ -1,9 +1,6 @@
 package com.feedbeforeflight.marshrutka.services;
 
-import com.feedbeforeflight.marshrutka.transport.BrokerPoint;
-import com.feedbeforeflight.marshrutka.transport.Message;
-import com.feedbeforeflight.marshrutka.transport.MessageBroker;
-import com.feedbeforeflight.marshrutka.transport.MessageBrokerServiceNotificationClient;
+import com.feedbeforeflight.marshrutka.transport.*;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -16,34 +13,30 @@ import javax.annotation.PostConstruct;
 public class TransferService implements MessageBrokerServiceNotificationClient {
 
     private final MessageBroker messageBroker;
+    private final MessageBrokerManager messageBrokerManager;
 
-    private final AmqpTemplate amqpTemplate;
-    private final AmqpAdmin amqpAdmin;
-
-    public TransferService(MessageBroker messageBroker, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
+    public TransferService(MessageBroker messageBroker, MessageBrokerManager messageBrokerManager) {
         this.messageBroker = messageBroker;
-        this.amqpTemplate = amqpTemplate;
-        this.amqpAdmin = amqpAdmin;
+        this.messageBrokerManager = messageBrokerManager;
     }
 
     @PostConstruct
     public void Initialize() {
+        messageBrokerManager.applyConfiguration();
         messageBroker.registerNotificationClient(this);
     }
 
     public void sendDirect(Message message) throws TransferException {
         try {
-            amqpTemplate.convertAndSend(message.getDestination().getName(), message);
+            messageBroker.send(message);
         }
         catch (AmqpException amqpException) {
             throw new TransferException(amqpException.getMessage(), amqpException);
         }
     }
 
-    public Message receive(BrokerPoint receiver) throws TransferException{
-        return amqpTemplate.receiveAndConvert(
-                receiver.getName(),
-                new ParameterizedTypeReference<Message>() {});
+    public Message receive(BrokerPoint receiver) throws TransferException {
+        return messageBroker.receive(receiver);
     }
 
     @Override
