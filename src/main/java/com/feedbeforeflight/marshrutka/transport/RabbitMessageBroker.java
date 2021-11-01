@@ -4,31 +4,38 @@ import com.feedbeforeflight.marshrutka.dao.PointRepository;
 import com.feedbeforeflight.marshrutka.services.TransferException;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager {
+public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager, ApplicationContextAware {
 
     private final PointRepository pointRepository;
     private final AmqpTemplate amqpTemplate;
     private final AmqpAdmin amqpAdmin;
-    private final ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
+    private MessageConverter messageConverter;
 
     private final HashMap<String, BrokerPoint> pointMap;
 
     private MessageBrokerServiceNotificationClient messageBrokerServiceNotificationClient;
 
-    public RabbitMessageBroker(ApplicationContext applicationContext, PointRepository pointRepository, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
+    public RabbitMessageBroker(PointRepository pointRepository, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
         this.pointRepository = pointRepository;
         this.amqpTemplate = amqpTemplate;
         this.amqpAdmin = amqpAdmin;
-        this.applicationContext = applicationContext;
 
         this.pointMap = new HashMap<>();
+        this.messageConverter = new SimpleMessageConverter();
     }
 
     // Broker repository
@@ -38,7 +45,7 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager 
     }
 
     @Override
-    public Message wrapMessage(String sourcePointName, String destinationPointName, String payload) throws TransferException {
+    public HandledMessage createHandledMessage(String sourcePointName, String destinationPointName, String brookName, String payload) throws TransferException {
         BrokerPoint sourcePoint = null;
         BrokerPoint destinationPoint = null;
 
@@ -51,39 +58,53 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager 
                     .orElseThrow(() -> new TransferException(String.format("Destination point [%s] not found", destinationPointName)));
         }
 
-        return new Message(sourcePoint, destinationPoint, payload);
+        return new HandledMessage(sourcePoint, destinationPoint, brookName, payload);
+    }
+
+    private Message convertHandledMessageToAMQPMessage(HandledMessage handledMessage) {
+
+
+
+        return null;
     }
 
     //Broker itself
     @Override
-    public void send(Message message) throws TransferException {
-        if (message.getDestination() != null) {
-            amqpTemplate.convertAndSend(message.getDestination().getName(), message.getPayload());
+    public void send(HandledMessage handledMessage) throws TransferException {
+        // todo: should transfer not only brookName, but set of headers, such as sourcePointID etc. to discover for handledMessage on the other side
+        if (handledMessage.getDestination() != null) {
+            amqpTemplate.convertAndSend(handledMessage.getDestination().getName(), handledMessage.getPayload(), m -> {
+                m.getMessageProperties().setHeader("brookName", handledMessage.getBrookName());
+                return m;
+            });
         }
         else {
-            amqpTemplate.convertAndSend(message.getSource().getName(), "", message.getPayload());
+            amqpTemplate.convertAndSend(handledMessage.getSource().getName(), "", handledMessage.getPayload(), m -> {
+                m.getMessageProperties().setHeader("brookName", handledMessage.getBrookName());
+                return m;
+            });
         }
     }
 
     @Override
-    public void send(BrokerPoint source, BrokerPoint destination, String message) throws TransferException {
-        send(new Message(source, destination, message));
+    public void send(BrokerPoint source, BrokerPoint destination, String brookName, String message) throws TransferException {
+        send(new HandledMessage(source, destination, brookName, message));
     }
 
     @Override
-    public void send(String sourcePointName, String destinationPointName, String message) throws TransferException {
-        send(wrapMessage(sourcePointName, destinationPointName, message));
+    public void send(String sourcePointName, String destinationPointName, String brookName, String message) throws TransferException {
+        send(createHandledMessage(sourcePointName, destinationPointName, brookName, message));
     }
 
     @Override
-    public Message receive(BrokerPoint destination) throws TransferException {
+    public HandledMessage receive(BrokerPoint destination) throws TransferException {
         Object received = amqpTemplate.receiveAndConvert(destination.getName());
 
-        return received == null ? null : new Message(null, destination, received.toString());
+        return received == null ? null : new HandledMessage(null, destination, "", received.toString());
     }
 
     @Override
-    public Message receive(String destinationPointName) throws TransferException {
+    public HandledMessage receive(String destinationPointName) throws TransferException {
         BrokerPoint destinationPoint = null;
 
         if (!destinationPointName.isEmpty()) {
@@ -112,5 +133,15 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager 
                     pointMap.put(point.getName(), brokerPoint);
                 });
 
+    }
+
+    @Override
+    public List<BrokerPoint> getPointList() {
+        return new ArrayList<>(pointMap.values());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

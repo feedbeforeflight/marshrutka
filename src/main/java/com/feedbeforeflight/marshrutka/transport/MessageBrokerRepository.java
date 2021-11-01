@@ -6,6 +6,6 @@ public interface MessageBrokerRepository {
 
     Optional<BrokerPoint> getPoint(String name);
 
-    Message wrapMessage(String sourcePointName, String destinationPointName, String payload);
+    HandledMessage createHandledMessage(String sourcePointName, String destinationPointName, String brookName, String payload);
 
 }

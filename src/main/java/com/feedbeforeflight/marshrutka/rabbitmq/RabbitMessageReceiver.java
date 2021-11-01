@@ -1,29 +1,41 @@
 package com.feedbeforeflight.marshrutka.rabbitmq;
 
 import com.feedbeforeflight.marshrutka.transport.RabbitBrokerPoint;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
 
-public class RabbitMessageReceiver {
+import java.util.List;
+
+public class RabbitMessageReceiver implements MessageListener {
 
     private final RabbitBrokerPoint rabbitBrokerPoint;
+    private AcknowledgeMode acknowledgeMode;
+
+    private MessageConverter messageConverter;
 
     public RabbitMessageReceiver(RabbitBrokerPoint rabbitBrokerPoint) {
         this.rabbitBrokerPoint = rabbitBrokerPoint;
+
+        this.messageConverter = new SimpleMessageConverter();
     }
 
-    public void receiveMessage(String message) {
-        //System.out.println(message);
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "text/html; charset=utf-8");
-
-        HttpEntity<String> request = new HttpEntity<>(message, headers);
-        String result = restTemplate.postForObject(rabbitBrokerPoint.getReceiveURL(), request, String.class);
-
-        //System.out.println(result);
+    @Override
+    public void onMessage(Message message) {
+        rabbitBrokerPoint.messageReceived(
+                (String) this.messageConverter.fromMessage(message),
+                message.getMessageProperties().getHeader("brookName"));
     }
 
+    @Override
+    public void containerAckMode(AcknowledgeMode mode) {
+        this.acknowledgeMode = mode;
+    }
+
+    @Override
+    public void onMessageBatch(List<Message> messages) {
+        MessageListener.super.onMessageBatch(messages);
+    }
 }

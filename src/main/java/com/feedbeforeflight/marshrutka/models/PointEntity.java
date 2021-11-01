@@ -2,6 +2,7 @@ package com.feedbeforeflight.marshrutka.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -13,44 +14,25 @@ public class PointEntity {
     @Id
     @GeneratedValue
     @Column(name = "id", nullable = false)
+    @Getter @Setter
     private int id;
 
     @Column(name = "name", length = 50, nullable = false, unique = true)
+    @Getter @Setter
     private String name;
 
     @Column(name = "active", nullable = false)
     private boolean active;
 
     @Column(name = "receive_url")
+    @Getter @Setter
     private String receiveURL;
 
     public PointEntity() {
-        System.out.println("Constructed point entity");
+
     }
 
     public boolean isActive() { return active; }
 
     public void setActive(boolean active) { this.active = active; }
-
-    public int getId() { return id; }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getReceiveURL() {
-        return receiveURL;
-    }
-
-    public void setReceiveURL(String receiveURL) {
-        this.receiveURL = receiveURL;
-    }
 }

@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Scope;
 public class MessageBrokerConfiguration {
 
     @Bean
-    MessageBroker messageBroker(ApplicationContext applicationContext, PointRepository pointRepository, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
-        return new RabbitMessageBroker(applicationContext, pointRepository, amqpTemplate, amqpAdmin);
+    MessageBroker messageBroker(PointRepository pointRepository, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
+        return new RabbitMessageBroker(pointRepository, amqpTemplate, amqpAdmin);
     }
 
     @Bean
@@ -29,8 +29,8 @@ public class MessageBrokerConfiguration {
 
     @Bean
     @Scope("prototype")
-    BrokerPoint brokerPoint(ApplicationContext applicationContext, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
-        return new RabbitBrokerPoint(applicationContext, amqpTemplate, amqpAdmin);
+    BrokerPoint brokerPoint(AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
+        return new RabbitBrokerPoint(amqpTemplate, amqpAdmin);
     }
 
 }

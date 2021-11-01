@@ -2,12 +2,12 @@ package com.feedbeforeflight.marshrutka.transport;
 
 public interface MessageBroker extends MessageBrokerRepository {
 
-    void send(Message message);
-    void send(BrokerPoint source, BrokerPoint destination, String message);
-    void send(String sourcePointName, String destinationPointName, String Message);
+    void send(HandledMessage message);
+    void send(BrokerPoint source, BrokerPoint destination, String brookName, String message);
+    void send(String sourcePointName, String destinationPointName, String brookName, String Message);
 
-    Message receive(BrokerPoint destination);
-    Message receive(String destinationPointName);
+    HandledMessage receive(BrokerPoint destination);
+    HandledMessage receive(String destinationPointName);
 
     void registerNotificationClient(MessageBrokerServiceNotificationClient messageBrokerServiceNotificationClient);
 

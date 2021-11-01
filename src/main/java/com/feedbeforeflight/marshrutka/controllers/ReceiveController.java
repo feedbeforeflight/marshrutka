@@ -1,7 +1,7 @@
 package com.feedbeforeflight.marshrutka.controllers;
 
 import com.feedbeforeflight.marshrutka.transport.BrokerPoint;
-import com.feedbeforeflight.marshrutka.transport.Message;
+import com.feedbeforeflight.marshrutka.transport.HandledMessage;
 import com.feedbeforeflight.marshrutka.services.TransferException;
 import com.feedbeforeflight.marshrutka.services.TransferService;
 import com.feedbeforeflight.marshrutka.transport.MessageBrokerRepository;
@@ -34,7 +34,7 @@ public class ReceiveController {
         }
 
         try {
-            Message message = transferService.receive(brokerPoint.get());
+            HandledMessage message = transferService.receive(brokerPoint.get());
             if (message == null) {
                 return new ResponseEntity<>("No messages to receive", HttpStatus.NO_CONTENT);
             }

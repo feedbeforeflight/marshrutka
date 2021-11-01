@@ -6,15 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
-public class Message {
+public class HandledMessage {
 
-    @Getter
-    @Setter
-    private BrokerPoint source;
-    @Getter
-    @Setter
-    private BrokerPoint destination;
+    @Getter @Setter private BrokerPoint source;
+    @Getter @Setter private BrokerPoint destination;
+    @Getter @Setter private String brookName;
 
-    @Getter
-    private String payload;
+    @Getter private String payload;
 }

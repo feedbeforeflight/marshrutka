@@ -1,9 +1,9 @@
 package com.feedbeforeflight.marshrutka.controllers;
 
-import com.feedbeforeflight.marshrutka.transport.BrokerPoint;
-import com.feedbeforeflight.marshrutka.transport.Message;
 import com.feedbeforeflight.marshrutka.services.TransferException;
 import com.feedbeforeflight.marshrutka.services.TransferService;
+import com.feedbeforeflight.marshrutka.transport.BrokerPoint;
+import com.feedbeforeflight.marshrutka.transport.HandledMessage;
 import com.feedbeforeflight.marshrutka.transport.MessageBrokerRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +33,7 @@ public class SendController {
     public ResponseEntity<String> sendDirect(
             @PathVariable(name = "sourceName") String sourceName,
             @PathVariable(name = "destinationName") String destinationName,
+            @RequestHeader(name = "X-brook-name") String brookName,
             @RequestBody String requestBody) {
 
         Optional<BrokerPoint> sourcePoint = messageBrokerRepository.getPoint(sourceName);
@@ -44,7 +45,8 @@ public class SendController {
             return new ResponseEntity<>("Destination point not found", HttpStatus.NOT_FOUND);
         }
 
-        Message message = new Message(sourcePoint.get(), destinationPoint.get(), requestBody);
+        // todo: should validate brook name here. could be made after adding brook persistence
+        HandledMessage message = new HandledMessage(sourcePoint.get(), destinationPoint.get(), brookName, requestBody);
 
         try {
             transferService.sendDirect(message);

@@ -1,15 +1,14 @@
 package com.feedbeforeflight.marshrutka.services;
 
 import com.feedbeforeflight.marshrutka.transport.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
 @Service
+@Slf4j
 public class TransferService implements MessageBrokerServiceNotificationClient {
 
     private final MessageBroker messageBroker;
@@ -26,7 +25,9 @@ public class TransferService implements MessageBrokerServiceNotificationClient {
         messageBroker.registerNotificationClient(this);
     }
 
-    public void sendDirect(Message message) throws TransferException {
+    public void sendDirect(HandledMessage message) throws TransferException {
+        log.debug("Sending message");
+
         try {
             messageBroker.send(message);
         }
@@ -35,12 +36,12 @@ public class TransferService implements MessageBrokerServiceNotificationClient {
         }
     }
 
-    public Message receive(BrokerPoint receiver) throws TransferException {
+    public HandledMessage receive(BrokerPoint receiver) throws TransferException {
         return messageBroker.receive(receiver);
     }
 
     @Override
-    public boolean messageReceived(Message message) {
+    public boolean messageReceived(HandledMessage message) {
         return false;
     }
 }
