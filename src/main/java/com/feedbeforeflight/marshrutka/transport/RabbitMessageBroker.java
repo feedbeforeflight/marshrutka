@@ -20,7 +20,7 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
     private final AmqpTemplate amqpTemplate;
     private final AmqpAdmin amqpAdmin;
     private ApplicationContext applicationContext;
-    private MessageConverter messageConverter;
+    private final MessageConverter messageConverter;
 
     private final HashMap<String, BrokerPoint> pointMap;
 
@@ -78,15 +78,14 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
                 m.getMessageProperties().setHeader("flowName", handledMessage.getFlowName());
                 return m;
             });
-            handledMessage.getSource().increaseSentCount();
         }
         else {
             amqpTemplate.convertAndSend(handledMessage.getSource().getName(), "", handledMessage.getPayload(), m -> {
                 m.getMessageProperties().setHeader("flowName", handledMessage.getFlowName());
                 return m;
             });
-            handledMessage.getSource().increaseSentCount();
         }
+        handledMessage.getSource().increaseSentCount();
     }
 
     @Override
@@ -163,16 +162,14 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
     public List<PointLiveData> getLiveData() {
         List<PointLiveData> pointLiveDataList = new ArrayList<>();
 
-        StreamSupport.stream(pointMap.values().spliterator(), false)
-                .forEach(brokerPoint -> {
-                    pointLiveDataList.add(new PointLiveData(
-                            brokerPoint.getId(),
-                            brokerPoint.getMessagesSent(),
-                            brokerPoint.getMessagesReceived(),
-                            brokerPoint.getMessagesQueued(),
-                            brokerPoint.receiveSuspended()));
-                });
-        return null;
+        pointMap.values().stream()
+                .forEach(brokerPoint -> pointLiveDataList.add(new PointLiveData(
+                        brokerPoint.getId(),
+                        brokerPoint.getMessagesSent(),
+                        brokerPoint.getMessagesReceived(),
+                        brokerPoint.getMessagesQueued(),
+                        brokerPoint.receiveSuspended())));
+        return pointLiveDataList;
     }
 
     @Override

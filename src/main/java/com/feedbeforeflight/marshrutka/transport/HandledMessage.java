@@ -1,6 +1,5 @@
 package com.feedbeforeflight.marshrutka.transport;
 
-import com.feedbeforeflight.marshrutka.models.PointEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

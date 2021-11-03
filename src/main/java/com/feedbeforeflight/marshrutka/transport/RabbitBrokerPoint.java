@@ -83,7 +83,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
         if (!active || !pushEnabled) {
             powerOffListener();
             return;
-        };
+        }
 
         log.debug("Starting listener container for receive. Point " + name);
 
@@ -152,7 +152,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
 
     @Override
     public void suspendMessageReceiver() {
-        log.debug("Suspending message listener at [" + String.valueOf(lastSendToClientAttempt) + "]");
+        log.debug("Suspending message listener at [" + lastSendToClientAttempt + "]");
 
         sendToClientFault = true;
         container.stop();

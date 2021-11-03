@@ -14,7 +14,7 @@ public class RabbitMessageReceiver implements MessageListener {
     private final RabbitBrokerPoint rabbitBrokerPoint;
     private AcknowledgeMode acknowledgeMode;
 
-    private MessageConverter messageConverter;
+    private final MessageConverter messageConverter;
 
     public RabbitMessageReceiver(RabbitBrokerPoint rabbitBrokerPoint) {
         this.rabbitBrokerPoint = rabbitBrokerPoint;
