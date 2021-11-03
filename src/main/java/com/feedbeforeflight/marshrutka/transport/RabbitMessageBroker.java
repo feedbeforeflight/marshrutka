@@ -162,13 +162,12 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
     public List<PointLiveData> getLiveData() {
         List<PointLiveData> pointLiveDataList = new ArrayList<>();
 
-        pointMap.values().stream()
-                .forEach(brokerPoint -> pointLiveDataList.add(new PointLiveData(
-                        brokerPoint.getId(),
-                        brokerPoint.getMessagesSent(),
-                        brokerPoint.getMessagesReceived(),
-                        brokerPoint.getMessagesQueued(),
-                        brokerPoint.receiveSuspended())));
+        pointMap.values().forEach(brokerPoint -> pointLiveDataList.add(new PointLiveData(
+                brokerPoint.getId(),
+                brokerPoint.getMessagesSent(),
+                brokerPoint.getMessagesReceived(),
+                brokerPoint.getMessagesQueued(),
+                brokerPoint.receiveSuspended())));
         return pointLiveDataList;
     }
 
