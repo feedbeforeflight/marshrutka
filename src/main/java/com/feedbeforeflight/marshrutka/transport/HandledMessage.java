@@ -10,7 +10,7 @@ public class HandledMessage {
 
     @Getter @Setter private BrokerPoint source;
     @Getter @Setter private BrokerPoint destination;
-    @Getter @Setter private String brookName;
+    @Getter @Setter private String flowName;
 
     @Getter private String payload;
 }

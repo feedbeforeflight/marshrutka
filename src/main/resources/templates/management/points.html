@@ -21,12 +21,16 @@
             <tr class="thead-inverse">
                 <th>ID</th>
                 <th>Name</th>
+                <th>Active</th>
+                <th>Push receive</th>
                 <th></th>
             </tr>
             <tr th:each="point : ${points}">
                 <td th:text="${point.getId()}"></td>
-                <td th:text="${point.getName()}"></td>
-                <td><a th:href="@{points/{id}(id=${point.getId()})}">...</a></td>
+                <td><a th:href="@{points/{id}(id=${point.getId()})}" th:text="${point.getName()}"></a></td>
+                <td th:text="${point.isActive()}"></td>
+                <td th:text="${point.isPushEnabled()}"></td>
+                <td><a th:href="@{points/{id}/edit(id=${point.getId()})}">edit</a></td>
             </tr>
         </table>
     </div>

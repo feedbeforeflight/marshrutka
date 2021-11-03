@@ -23,18 +23,16 @@ public class MessageBrokerWarden {
     public void checkClientsAlive() {
         cyclesCount++;
 
-//        System.out.println("Warden is awake. Cycle #" + cyclesCount);
-
         for (BrokerPoint brokerPoint : messageBrokerManager.getPointList()) {
             if (brokerPoint.receiveSuspended()) {
                 long currentTime = System.currentTimeMillis();
-                log.info("Checked at " + String.valueOf(currentTime));
 
                 if ((currentTime - brokerPoint.getLastSendToClientAttempt()) >= pointResumeAfterErrorTimeout) {
-                    log.info(String.valueOf(System.currentTimeMillis() - brokerPoint.getLastSendToClientAttempt()));
                     brokerPoint.resumeMessageReceiver();
                 }
             }
+
+            brokerPoint.updateQueuedCount();
         }
     }
 }

@@ -33,7 +33,7 @@ public class SendController {
     public ResponseEntity<String> sendDirect(
             @PathVariable(name = "sourceName") String sourceName,
             @PathVariable(name = "destinationName") String destinationName,
-            @RequestHeader(name = "X-brook-name") String brookName,
+            @RequestHeader(name = "X-flow-name") String flowName,
             @RequestBody String requestBody) {
 
         Optional<BrokerPoint> sourcePoint = messageBrokerRepository.getPoint(sourceName);
@@ -45,8 +45,8 @@ public class SendController {
             return new ResponseEntity<>("Destination point not found", HttpStatus.NOT_FOUND);
         }
 
-        // todo: should validate brook name here. could be made after adding brook persistence
-        HandledMessage message = new HandledMessage(sourcePoint.get(), destinationPoint.get(), brookName, requestBody);
+        // todo: should validate flow name here. could be made after adding flow persistence
+        HandledMessage message = new HandledMessage(sourcePoint.get(), destinationPoint.get(), flowName, requestBody);
 
         try {
             transferService.sendDirect(message);

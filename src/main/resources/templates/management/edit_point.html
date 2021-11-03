@@ -16,39 +16,48 @@
 </nav>
 
 <div class="container">
-    <form th:object="${point}" th:method="POST" th:action="@{/points/{id}(id=${point.getId()})}" >
+    <form th:object="${point}" th:method="POST" th:action="@{/management/points/{id}(id=${point.getId()})}" >
         <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" th:field="*{active}" id="active" readonly>
+            <input type="checkbox" class="custom-control-input" th:field="*{active}" id="active">
             <label class="custom-control-label" for="active">Active</label>
         </div>
 
         <div class="form-group row">
             <label for="id" class="col-sm-2 col-form-label">id:</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" th:field="*{id}" id="id" readonly/>
+                <input type="text" class="form-control-plaintext" th:field="*{id}" id="id"/>
             </div>
         </div>
 
         <div class="form-group row">
             <label for="name" class="col-sm-2 col-form-label">name:</label>
             <div class="col-sm-10">
-                <input type="text"  class="form-control-plaintext" th:field="*{name}" id="name" readonly/>
+                <input type="text"  class="form-control-plaintext" th:field="*{name}" id="name"/>
             </div>
         </div>
 
         <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" th:field="*{pushEnabled}" id="pushEnabled" readonly>
+            <input type="checkbox" class="custom-control-input" th:field="*{pushEnabled}" id="pushEnabled">
             <label class="custom-control-label" for="pushEnabled">Push receiving enabled</label>
+        </div>
+
+        <div class="form-group row">
+            <label for="protocol" class="col-sm-2 col-form-label">protocol:</label>
+            <select name="protocol" id="protocol" th:field="*{pushProtocol}">
+                <option th:each="protocolOpt : ${T(com.feedbeforeflight.marshrutka.models.PointEntityProtocol).values()}"
+                        th:value="${protocolOpt}" th:text="${protocolOpt}"></option>
+            </select>
         </div>
 
         <div class="form-group row">
             <label for="name" class="col-sm-2 col-form-label">Push URL:</label>
             <div class="col-sm-10">
-                <input type="text"  class="form-control-plaintext" th:field="*{pushURL}" id="pushURL" readonly/>
+                <input type="text"  class="form-control-plaintext" th:field="*{pushURL}" id="pushURL"/>
             </div>
         </div>
 
         <br/>
+        <input type="submit" value="Update"/>
     </form>
 </div>
 

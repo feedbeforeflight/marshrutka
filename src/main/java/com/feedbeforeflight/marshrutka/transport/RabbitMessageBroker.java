@@ -1,20 +1,17 @@
 package com.feedbeforeflight.marshrutka.transport;
 
 import com.feedbeforeflight.marshrutka.dao.PointRepository;
+import com.feedbeforeflight.marshrutka.models.PointLiveData;
 import com.feedbeforeflight.marshrutka.services.TransferException;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager, ApplicationContextAware {
@@ -45,7 +42,18 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
     }
 
     @Override
-    public HandledMessage createHandledMessage(String sourcePointName, String destinationPointName, String brookName, String payload) throws TransferException {
+    public Optional<BrokerPoint> getPointByID(int id) {
+        for (BrokerPoint brokerPoint : pointMap.values()) {
+            if (id == brokerPoint.getId()) {
+                return Optional.of(brokerPoint);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public HandledMessage createHandledMessage(String sourcePointName, String destinationPointName, String flowName, String payload) throws TransferException {
         BrokerPoint sourcePoint = null;
         BrokerPoint destinationPoint = null;
 
@@ -58,42 +66,37 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
                     .orElseThrow(() -> new TransferException(String.format("Destination point [%s] not found", destinationPointName)));
         }
 
-        return new HandledMessage(sourcePoint, destinationPoint, brookName, payload);
-    }
-
-    private Message convertHandledMessageToAMQPMessage(HandledMessage handledMessage) {
-
-
-
-        return null;
+        return new HandledMessage(sourcePoint, destinationPoint, flowName, payload);
     }
 
     //Broker itself
     @Override
     public void send(HandledMessage handledMessage) throws TransferException {
-        // todo: should transfer not only brookName, but set of headers, such as sourcePointID etc. to discover for handledMessage on the other side
+        // todo: should transfer not only flowName, but set of headers, such as sourcePointID etc. to discover for handledMessage on the other side
         if (handledMessage.getDestination() != null) {
             amqpTemplate.convertAndSend(handledMessage.getDestination().getName(), handledMessage.getPayload(), m -> {
-                m.getMessageProperties().setHeader("brookName", handledMessage.getBrookName());
+                m.getMessageProperties().setHeader("flowName", handledMessage.getFlowName());
                 return m;
             });
+            handledMessage.getSource().increaseSentCount();
         }
         else {
             amqpTemplate.convertAndSend(handledMessage.getSource().getName(), "", handledMessage.getPayload(), m -> {
-                m.getMessageProperties().setHeader("brookName", handledMessage.getBrookName());
+                m.getMessageProperties().setHeader("flowName", handledMessage.getFlowName());
                 return m;
             });
+            handledMessage.getSource().increaseSentCount();
         }
     }
 
     @Override
-    public void send(BrokerPoint source, BrokerPoint destination, String brookName, String message) throws TransferException {
-        send(new HandledMessage(source, destination, brookName, message));
+    public void send(BrokerPoint source, BrokerPoint destination, String flowName, String message) throws TransferException {
+        send(new HandledMessage(source, destination, flowName, message));
     }
 
     @Override
-    public void send(String sourcePointName, String destinationPointName, String brookName, String message) throws TransferException {
-        send(createHandledMessage(sourcePointName, destinationPointName, brookName, message));
+    public void send(String sourcePointName, String destinationPointName, String flowName, String message) throws TransferException {
+        send(createHandledMessage(sourcePointName, destinationPointName, flowName, message));
     }
 
     @Override
@@ -122,7 +125,7 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
 
     @Override
     public void applyConfiguration() {
-        pointMap.forEach((name, brokerPoint) -> brokerPoint.powerOff());
+        pointMap.forEach((name, brokerPoint) -> brokerPoint.powerOffListener());
         pointMap.clear();
 
         StreamSupport.stream(pointRepository.findAll().spliterator(), false)
@@ -138,6 +141,38 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
     @Override
     public List<BrokerPoint> getPointList() {
         return new ArrayList<>(pointMap.values());
+    }
+
+    @Override
+    public PointLiveData getPointLiveData(int pointID) {
+        BrokerPoint brokerPoint = getPointByID(pointID).orElse(null);
+        if (brokerPoint == null) {
+            return new PointLiveData();
+        }
+        else {
+            return new PointLiveData(
+                    pointID,
+                    brokerPoint.getMessagesSent(),
+                    brokerPoint.getMessagesReceived(),
+                    brokerPoint.getMessagesQueued(),
+                    brokerPoint.receiveSuspended());
+        }
+    }
+
+    @Override
+    public List<PointLiveData> getLiveData() {
+        List<PointLiveData> pointLiveDataList = new ArrayList<>();
+
+        StreamSupport.stream(pointMap.values().spliterator(), false)
+                .forEach(brokerPoint -> {
+                    pointLiveDataList.add(new PointLiveData(
+                            brokerPoint.getId(),
+                            brokerPoint.getMessagesSent(),
+                            brokerPoint.getMessagesReceived(),
+                            brokerPoint.getMessagesQueued(),
+                            brokerPoint.receiveSuspended()));
+                });
+        return null;
     }
 
     @Override

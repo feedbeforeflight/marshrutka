@@ -2,13 +2,13 @@ package com.feedbeforeflight.marshrutka.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "Points")
-@AllArgsConstructor
 public class PointEntity {
 
     @Id
@@ -22,17 +22,30 @@ public class PointEntity {
     private String name;
 
     @Column(name = "active", nullable = false)
+    @Getter @Setter
     private boolean active;
 
-    @Column(name = "receive_url")
+    @Column(name = "push_url")
     @Getter @Setter
-    private String receiveURL;
+    private String pushURL;
+
+    @Column(name = "push_enabled", nullable = false)
+    @Getter @Setter
+    private boolean pushEnabled;
+
+    @Column(name = "push_protocol", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    @Getter @Setter
+    private PointEntityProtocol pushProtocol;
+
+    public PointEntity(int id, String name, boolean active) {
+        this.id = id;
+        this.name = name;
+        this.active = active;
+    }
 
     public PointEntity() {
 
     }
 
-    public boolean isActive() { return active; }
-
-    public void setActive(boolean active) { this.active = active; }
 }

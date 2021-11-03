@@ -48,9 +48,9 @@ class ManagementControllerTest {
     @Test
     @SneakyThrows
     void getAllPoints() {
-        PointEntity point1 = new PointEntity(1, "point1", true, "");
-        PointEntity point2 = new PointEntity(3, "point2", false, "");
-        PointEntity point3 = new PointEntity(51, "point120", true, "");
+        PointEntity point1 = new PointEntity(1, "point1", true);
+        PointEntity point2 = new PointEntity(3, "point2", false);
+        PointEntity point3 = new PointEntity(51, "point120", true);
         Mockito.when(pointService.getAll()).thenReturn(List.of(point1, point2, point3));
 
         mockMvc.perform(get("/management/points"))
@@ -66,7 +66,7 @@ class ManagementControllerTest {
     @Test
     @SneakyThrows
     void showPoint() {
-        Mockito.when(pointService.getById(120)).thenReturn(new PointEntity(120, "mockedPoint", true, ""));
+        Mockito.when(pointService.getById(120)).thenReturn(new PointEntity(120, "mockedPoint", true));
 
         mockMvc.perform(get("/management/points/120"))
                 .andDo(print())

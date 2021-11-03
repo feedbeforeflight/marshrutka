@@ -26,7 +26,7 @@ public class RabbitMessageReceiver implements MessageListener {
     public void onMessage(Message message) {
         rabbitBrokerPoint.messageReceived(
                 (String) this.messageConverter.fromMessage(message),
-                message.getMessageProperties().getHeader("brookName"));
+                message.getMessageProperties().getHeader("flowName"));
     }
 
     @Override

@@ -40,11 +40,22 @@ public class ManagementController {
         return "management/point";
     }
 
+    @GetMapping("/points/{id}/edit")
+    public String editPoint(@PathVariable("id") int id, Model model) {
+        PointEntity point = pointService.getById(id);
+        if (point == null) {
+            return "redirect:/management/points";
+        }
+
+        model.addAttribute("point", point);
+        return "management/edit_point";
+    }
+
     @GetMapping("/points/new")
     public String newPoint(Model model) {
         PointEntity point = new PointEntity();
         model.addAttribute("point", point);
-        return "management/point";
+        return "management/edit_point";
     }
 
     @PostMapping("/points/{id}")

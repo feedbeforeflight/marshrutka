@@ -7,14 +7,21 @@ public interface BrokerPoint {
     int getId();
     String getName();
 
+    int getMessagesSent();
+    int getMessagesReceived();
+    int getMessagesQueued();
+
     boolean receiveSuspended();
     long getLastSendToClientAttempt();
 
     void init(PointEntity pointEntity);
-    void powerOff();
+    void powerOffListener();
 
     void suspendMessageReceiver();
     void resumeMessageReceiver();
 
-    void messageReceived(String message, String brookName);
+    void messageReceived(String message, String flowName);
+
+    void increaseSentCount();
+    void updateQueuedCount();
 }
