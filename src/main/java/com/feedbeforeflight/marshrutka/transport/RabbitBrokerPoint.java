@@ -85,7 +85,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
             return;
         }
 
-        log.debug("Starting listener container for receive. Point " + name);
+        log.debug("Starting listener container for receive. Point [" + name +"]");
 
         // todo: if it should receive smth, set listener container
         this.queue = new Queue(this.name);
@@ -102,7 +102,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
     public void powerOffListener() {
         if (container == null) { return; }
 
-        log.debug("Powering off listener container for receive. Point " + name);
+        log.debug("Powering off listener container for receive. Point [" + name + "]");
 
         //amqpAdmin.deleteQueue(this.queue.getName()); // maybe dropping potentially not empty queue is not a good idea
         container.stop();
@@ -113,7 +113,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
 
     @Override
     public void messageReceived(String message, String flowName) throws TransferException {
-        log.debug("Receiving message. flow name: " + flowName);
+        log.debug("Receiving message. Flow name: [" + flowName + "]");
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -123,13 +123,15 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
 
         HttpEntity<String> request = new HttpEntity<>(message, headers);
 
+        //todo: it would be more correct to interact with client from TransferService
+        // especially there is already an interface and callback onMessage
         try {
             String result = restTemplate.postForObject(pushURL, request, String.class);
             lastSendToClientAttempt = System.currentTimeMillis();
             messagesReceived.incrementAndGet();
         } catch (RestClientException e) {
             lastSendToClientAttempt = System.currentTimeMillis();
-            log.error("Unsuccessful call to client", e);
+            log.error("Unsuccessful call to client. Flow name [" + flowName + "]", e);
             suspendMessageReceiver();
             throw new TransferException(e);
         }
@@ -142,7 +144,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
 
     @Override
     public void updateQueuedCount() {
-        if (!active) {
+        if (!active || queue == null) {
             return;
         }
 
@@ -152,7 +154,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
 
     @Override
     public void suspendMessageReceiver() {
-        log.debug("Suspending message listener at [" + lastSendToClientAttempt + "]");
+        log.debug("Suspending message listener. Timestamp[" + lastSendToClientAttempt + "]");
 
         sendToClientFault = true;
         container.stop();

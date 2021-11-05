@@ -9,10 +9,11 @@
 </head>
 <body>
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
+    <ol class="container breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
         <li class="breadcrumb-item"><a href="/management">Management</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Points</li>
+        <li class="breadcrumb-item"><a href="/management/points">Points</a></li>
+        <li class="breadcrumb-item active" aria-current="page" th:text="${point.getId() == 0 ? 'New point' : point.getName()}"></li>
     </ol>
 </nav>
 
@@ -58,8 +59,14 @@
         </div>
 
         <br/>
-        <input type="submit" value="Update"/>
+        <input type="submit" th:attr="value=${point.getId() == 0 ? 'Create' : 'Update'}"/>
     </form>
+</div>
+
+<hr class="container"/>
+
+<div class="container" th:if="${point.getId() != 0}">
+    <a th:href="@{/management/points/{id}/delete(id=${point.getId()})}" class="badge badge-danger">Delete</a>
 </div>
 
 <footer class="footer">

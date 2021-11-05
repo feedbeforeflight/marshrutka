@@ -1,6 +1,7 @@
 package com.feedbeforeflight.marshrutka.controllers;
 
 import com.feedbeforeflight.marshrutka.models.PointEntity;
+import com.feedbeforeflight.marshrutka.models.PointLiveData;
 import com.feedbeforeflight.marshrutka.services.PointEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -61,6 +62,13 @@ public class ManagementController {
     @PostMapping("/points/{id}")
     public String updatePoint(@ModelAttribute("point") PointEntity point) {
         pointService.updatePoint(point);
+
+        return "redirect:/management/points";
+    }
+
+    @GetMapping("points/{id}/delete")
+    public String deletePoint(@PathVariable("id") int id) {
+        pointService.deleteById(id);
 
         return "redirect:/management/points";
     }

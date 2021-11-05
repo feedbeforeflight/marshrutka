@@ -9,48 +9,66 @@
 </head>
 <body>
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
+    <ol class="container breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
         <li class="breadcrumb-item"><a href="/management">Management</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Points</li>
+        <li class="breadcrumb-item"><a href="/management/points">Points</a></li>
+        <li class="breadcrumb-item active" aria-current="page" th:text="${point.getName()}"></li>
     </ol>
 </nav>
 
 <div class="container">
-    <form th:object="${point}" th:method="POST" th:action="@{/points/{id}(id=${point.getId()})}">
-        <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" th:field="*{active}" id="active" readonly>
-            <label class="custom-control-label" for="active">Active</label>
-        </div>
+    <dl class="row">
+        <dt class="col-sm-3">State:</dt>
+        <dd class="col-sm-9" th:text="${point.isActive() ? 'active' : 'inactive'}"
+            th:classappend="${point.isActive() ? 'badge badge-success' : 'badge badge-warning'}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">ID:</dt>
+        <dd class="col-sm-9" th:text="${point.getId()}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">Name:</dt>
+        <dd class="col-sm-9" th:text="${point.getName()}"></dd>
+    </dl>
 
-        <div class="form-group row">
-            <label for="id" class="col-sm-2 col-form-label">id:</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" th:field="*{id}" id="id" readonly/>
-            </div>
-        </div>
+    <hr class="container"/>
 
-        <div class="form-group row">
-            <label for="name" class="col-sm-2 col-form-label">name:</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" th:field="*{name}" id="name" readonly/>
-            </div>
-        </div>
+    <dl class="row">
+        <dt class="col-sm-3">Push receiving:</dt>
+        <dd class="col-sm-9" th:text="${point.isPushEnabled() ? 'enabled' : 'disabled'}"
+            th:classappend="${point.isPushEnabled() ? 'badge badge-success' : 'badge badge-secondary'}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">Push protocol:</dt>
+        <dd class="col-sm-9" th:text="${point.getPushProtocol()}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">Push URL:</dt>
+        <dd class="col-sm-9" th:text="${point.getPushURL()}"></dd>
+    </dl>
+</div>
 
-        <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" th:field="*{pushEnabled}" id="pushEnabled" readonly>
-            <label class="custom-control-label" for="pushEnabled">Push receiving enabled</label>
-        </div>
+<hr class="container"/>
 
-        <div class="form-group row">
-            <label for="name" class="col-sm-2 col-form-label">Push URL:</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" th:field="*{pushURL}" id="pushURL" readonly/>
-            </div>
-        </div>
-
-        <br/>
-    </form>
+<div class="container">
+    <dl class="row">
+        <dt class="col-sm-3">Messages sent:</dt>
+        <dd class="col-sm-9" th:text="${point.getMessagesSent()}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">Messages received:</dt>
+        <dd class="col-sm-9" th:text="${point.getMessagesReceived()}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">Messages queued:</dt>
+        <dd class="col-sm-9" th:text="${point.getMessagesQueued()}"></dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-3">Push service has errors:</dt>
+        <dd class="col-sm-9" th:text="${point.isPushErroneous() ? 'push has errors' : ''}"
+            th:classappend="${point.isPushErroneous() ? 'badge badge-danger' : 'default'}"></dd>
+    </dl>
 </div>
 
 <footer class="footer">

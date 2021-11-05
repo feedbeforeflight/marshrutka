@@ -9,7 +9,7 @@
 </head>
 <body>
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
+    <ol class="container breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
         <li class="breadcrumb-item"><a href="/management">Management</a></li>
         <li class="breadcrumb-item active" aria-current="page">Points</li>
@@ -25,17 +25,42 @@
                 <th>Active</th>
                 <th>Push receive</th>
                 <th></th>
+                <th>Sent</th>
+                <th>Received</th>
+                <th>Queued</th>
+                <th>Push has errors</th>
             </tr>
             <tr th:each="point : ${points}">
                 <td th:text="${point.getId()}"></td>
                 <td><a th:href="@{points/{id}(id=${point.getId()})}" th:text="${point.getName()}"></a></td>
-                <td th:text="${point.isActive()}"></td>
-                <td th:text="${point.isPushEnabled()}"></td>
-                <td><a th:href="@{points/{id}/edit(id=${point.getId()})}">edit</a></td>
+                <td>
+                    <div th:text="${point.isActive() ? 'active' : ''}" th:class="${point.isActive() ? 'badge badge-success' : 'default'}">
+                    </div>
+                </td>
+                <td>
+                    <div th:text="${point.isPushEnabled() ? 'push' : ''}" th:class="${point.isPushEnabled() ? 'badge badge-success' : 'default'}">
+                    </div>
+                </td>
+                <td><a th:href="@{points/{id}/edit(id=${point.getId()})}" class="badge badge-info">edit</a></td>
+                <td th:text="${point.getMessagesSent()}"></td>
+                <td th:text="${point.getMessagesReceived()}"></td>
+                <td th:text="${point.getMessagesQueued()}"></td>
+                <td>
+                    <div th:text="${point.isPushErroneous() ? 'push error' : ''}"
+                         th:class="${point.isPushErroneous() ? 'badge badge-danger' : 'default'}">
+                    </div>
+                </td>
             </tr>
         </table>
     </div>
 </div>
+
+<hr class="container"/>
+
+<div class="container">
+    <a th:href="@{points/new}" class="badge badge-info">New point...</a>
+</div>
+
 <footer class="footer">
     <div class="container">
         <span class="text-muted">Marshrutka - mini data bus</span>
