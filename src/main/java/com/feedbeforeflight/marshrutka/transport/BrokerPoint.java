@@ -6,6 +6,7 @@ public interface BrokerPoint {
 
     int getId();
     String getName();
+    boolean isActive();
 
     int getMessagesSent();
     int getMessagesReceived();

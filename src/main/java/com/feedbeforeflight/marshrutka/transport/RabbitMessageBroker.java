@@ -3,6 +3,7 @@ package com.feedbeforeflight.marshrutka.transport;
 import com.feedbeforeflight.marshrutka.dao.PointRepository;
 import com.feedbeforeflight.marshrutka.models.PointLiveData;
 import com.feedbeforeflight.marshrutka.services.TransferException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -14,6 +15,7 @@ import org.springframework.context.ApplicationContextAware;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager, ApplicationContextAware {
 
     private final PointRepository pointRepository;
@@ -72,6 +74,17 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
     //Broker itself
     @Override
     public void send(HandledMessage handledMessage) throws TransferException {
+        if (!handledMessage.getSource().isActive()) {
+            String errorMessage = String.format("Source point [%s] is not active", handledMessage.getSource().getName());
+            log.error(errorMessage);
+            throw new TransferException(errorMessage);
+        }
+        if (handledMessage.getDestination() != null && !handledMessage.getDestination().isActive()) {
+            String errorMessage = String.format("Destination point [%s] is not active", handledMessage.getSource().getName());
+            log.error(errorMessage);
+            throw new TransferException(errorMessage);
+        }
+
         // todo: should transfer not only flowName, but set of headers, such as sourcePointID etc. to discover for handledMessage on the other side
         if (handledMessage.getDestination() != null) {
             amqpTemplate.convertAndSend(handledMessage.getDestination().getName(), handledMessage.getPayload(), m -> {
