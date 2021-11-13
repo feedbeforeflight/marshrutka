@@ -39,7 +39,7 @@ class PointEntityServiceTest {
 
         List<PointEntity> points = pointService.getAll();
 
-        Mockito.verify(pointRepository, Mockito.times(1)).findAll();
+        Mockito.verify(pointRepository, Mockito.times(2)).findAll();
         assertThat(points, hasSize(3));
         assertThat(points.get(0), notNullValue());
         assertThat(points.get(0), sameInstance(point1));
