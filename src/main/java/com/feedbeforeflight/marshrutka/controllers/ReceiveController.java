@@ -19,22 +19,20 @@ import java.util.Optional;
 public class ReceiveController {
 
     private final TransferService transferService;
-    private final MessageBrokerRepository messageBrokerRepository;
 
-    public ReceiveController(TransferService transferService, MessageBrokerRepository messageBrokerRepository) {
+    public ReceiveController(TransferService transferService) {
         this.transferService = transferService;
-        this.messageBrokerRepository = messageBrokerRepository;
     }
 
     @GetMapping("/{destinationName}")
     public ResponseEntity<String> receive(@PathVariable(name = "destinationName") String name) {
-        Optional<BrokerPoint> brokerPoint = messageBrokerRepository.getPoint(name);
-        if (brokerPoint.isEmpty()) {
+        BrokerPoint brokerPoint = transferService.getPoint(name);
+        if (brokerPoint == null) {
             return new ResponseEntity<>("Point not found", HttpStatus.NOT_FOUND);
         }
 
         try {
-            HandledMessage message = transferService.receive(brokerPoint.get());
+            HandledMessage message = transferService.receive(brokerPoint);
             if (message == null) {
                 return new ResponseEntity<>("No messages to receive", HttpStatus.NO_CONTENT);
             }
