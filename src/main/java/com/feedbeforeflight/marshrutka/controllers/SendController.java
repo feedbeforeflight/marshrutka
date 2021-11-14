@@ -16,11 +16,9 @@ import java.util.Optional;
 public class SendController {
 
     private final TransferService transferService;
-    private final MessageBrokerRepository messageBrokerRepository;
 
-    public SendController(TransferService transferService, MessageBrokerRepository messageBrokerRepository) {
+    public SendController(TransferService transferService) {
         this.transferService = transferService;
-        this.messageBrokerRepository = messageBrokerRepository;
     }
 
     @PostMapping("/{sourceName}")
@@ -36,20 +34,17 @@ public class SendController {
             @RequestHeader(name = "X-flow-name") String flowName,
             @RequestBody String requestBody) {
 
-        Optional<BrokerPoint> sourcePoint = messageBrokerRepository.getPoint(sourceName);
-        if (sourcePoint.isEmpty()) {
+        BrokerPoint sourcePoint = transferService.getPoint(sourceName);
+        if (sourcePoint == null) {
             return new ResponseEntity<>("Source point not found", HttpStatus.NOT_FOUND);
         }
-        Optional<BrokerPoint> destinationPoint = messageBrokerRepository.getPoint(destinationName);
-        if (destinationPoint.isEmpty()) {
+        BrokerPoint destinationPoint = transferService.getPoint(destinationName);
+        if (destinationPoint == null) {
             return new ResponseEntity<>("Destination point not found", HttpStatus.NOT_FOUND);
         }
 
-        // todo: should validate flow name here. could be made after adding flow persistence
-        HandledMessage message = new HandledMessage(sourcePoint.get(), destinationPoint.get(), flowName, requestBody);
-
         try {
-            transferService.sendDirect(message);
+            transferService.sendDirect(sourcePoint, destinationPoint, flowName, requestBody);
         }
         catch (TransferException transferException) {
             return new ResponseEntity<>(transferException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
