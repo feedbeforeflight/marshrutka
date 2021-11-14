@@ -17,6 +17,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Objects;
+
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -125,7 +127,7 @@ class RabbitBrokerPointTest {
     }
 
     @Test
-    void messageReceived() {
+    void messageReceived() throws Exception {
         PointEntity pointEntity = new PointEntity(1, "TestPoint", true);
         pointEntity.setPushEnabled(true);
         pointEntity.setPushURL("TestUrl");
@@ -143,7 +145,7 @@ class RabbitBrokerPointTest {
         point.messageReceived(testMessage, testFlowName);
 
         ArgumentCaptor<String> pushUrlCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<HttpEntity> requestCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        ArgumentCaptor<HttpEntity<String>> requestCaptor = ArgumentCaptor.forClass(HttpEntity.class);
 
         Mockito.verify(restTemplate, Mockito.times(1)).postForObject(
                 pushUrlCaptor.capture(),
@@ -153,10 +155,10 @@ class RabbitBrokerPointTest {
         String capturedUrl = pushUrlCaptor.getValue();
         assertThat(capturedUrl, equalTo(pointEntity.getPushURL()));
 
-        HttpEntity request = requestCaptor.getValue();
+        HttpEntity<String> request = requestCaptor.getValue();
         assertThat(request, notNullValue());
-        assertThat(request.getBody().toString(), equalTo(testMessage));
-        assertThat(request.getHeaders().get("X-flow-name").toString(), containsString(testFlowName));
+        assertThat(Objects.requireNonNull(request.getBody()).toString(), equalTo(testMessage));
+        assertThat(Objects.requireNonNull(request.getHeaders().get("X-flow-name")).toString(), containsString(testFlowName));
 
     }
 
