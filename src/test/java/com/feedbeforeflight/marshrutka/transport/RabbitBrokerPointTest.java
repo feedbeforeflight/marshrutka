@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueInformation;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -172,15 +173,71 @@ class RabbitBrokerPointTest {
     }
 
     @Test
-    void updateQueuedCount() {
+    void updateQueuedCount_WhenCalled_ShouldSetQueuedAmount() {
+        String pointName = "TestPoint";
+
+        PointEntity pointEntity = new PointEntity(1, pointName, true);
+        pointEntity.setPushEnabled(true);
+        pointEntity.setPushURL("TestUrl");
+
+        Mockito.when(context.getBean(SimpleMessageListenerContainer.class)).thenReturn(container);
+        Mockito.when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+
+        RabbitBrokerPoint point = new RabbitBrokerPoint(amqpTemplate, amqpAdmin);
+        point.setApplicationContext(context);
+        point.init(pointEntity);
+
+        QueueInformation queueInformation = new QueueInformation(pointName, 25, 1);
+        Mockito.when(amqpAdmin.getQueueInfo(pointName)).thenReturn(queueInformation);
+
+        point.updateQueuedCount();
+
+        assertThat(point.getMessagesQueued(), equalTo(25));
     }
 
     @Test
-    void suspendMessageReceiver() {
+    void suspendMessageReceiver_WhenCalled_ShouldStopContainer() {
+        String pointName = "TestPoint";
+
+        PointEntity pointEntity = new PointEntity(1, pointName, true);
+        pointEntity.setPushEnabled(true);
+        pointEntity.setPushURL("TestUrl");
+
+        Mockito.when(context.getBean(SimpleMessageListenerContainer.class)).thenReturn(container);
+        Mockito.when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+
+        RabbitBrokerPoint point = new RabbitBrokerPoint(amqpTemplate, amqpAdmin);
+        point.setApplicationContext(context);
+        point.init(pointEntity);
+
+        Mockito.verify(container, Mockito.times(1)).start();
+        point.suspendMessageReceiver();
+        Mockito.verify(container, Mockito.times(1)).stop();
+        assertThat(point.isSendToClientFault(), is(true));
     }
 
     @Test
-    void resumeMessageReceiver() {
+    void resumeMessageReceiver_WhenCalledOnSuspendedState_ShouldResumeContainer() {
+        String pointName = "TestPoint";
+
+        PointEntity pointEntity = new PointEntity(1, pointName, true);
+        pointEntity.setPushEnabled(true);
+        pointEntity.setPushURL("TestUrl");
+
+        Mockito.when(context.getBean(SimpleMessageListenerContainer.class)).thenReturn(container);
+        Mockito.when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+
+        RabbitBrokerPoint point = new RabbitBrokerPoint(amqpTemplate, amqpAdmin);
+        point.setApplicationContext(context);
+        point.init(pointEntity);
+
+        Mockito.verify(container, Mockito.times(1)).start();
+        point.suspendMessageReceiver();
+        Mockito.verify(container, Mockito.times(1)).stop();
+        assertThat(point.isSendToClientFault(), is(true));
+        point.resumeMessageReceiver();
+        Mockito.verify(container, Mockito.times(2)).start();
+        assertThat(point.isSendToClientFault(), is(false));
     }
 
 }

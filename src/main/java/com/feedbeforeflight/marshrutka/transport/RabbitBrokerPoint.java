@@ -49,7 +49,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
     private Queue queue;
 
     @Getter private long lastSendToClientAttempt = 0;
-    @Getter boolean sendToClientFault = false;
+    @Getter private boolean sendToClientFault = false;
 
     @Override
     public int getMessagesSent() {
