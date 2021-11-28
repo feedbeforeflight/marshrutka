@@ -26,7 +26,7 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
 
     private final HashMap<String, BrokerPoint> pointMap;
 
-    private MessageBrokerServiceNotificationClient messageBrokerServiceNotificationClient;
+    private MessageBrokerServiceNotificationClient messageBrokerServiceNotificationClient; // uncertain!
 
     public RabbitMessageBroker(PointRepository pointRepository, AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
         this.pointRepository = pointRepository;
@@ -80,7 +80,7 @@ public class RabbitMessageBroker implements MessageBroker, MessageBrokerManager,
             throw new TransferException(errorMessage);
         }
         if (handledMessage.getDestination() != null && !handledMessage.getDestination().isActive()) {
-            String errorMessage = String.format("Destination point [%s] is not active", handledMessage.getSource().getName());
+            String errorMessage = String.format("Destination point [%s] is not active", handledMessage.getDestination().getName());
             log.error(errorMessage);
             throw new TransferException(errorMessage);
         }

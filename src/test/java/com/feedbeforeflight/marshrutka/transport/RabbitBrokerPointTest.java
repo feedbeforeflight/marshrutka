@@ -128,7 +128,7 @@ class RabbitBrokerPointTest {
     }
 
     @Test
-    void messageReceived() throws Exception {
+    void messageReceived_WhenCalled_ShouldSendWithRestTemplate() throws Exception {
         PointEntity pointEntity = new PointEntity(1, "TestPoint", true);
         pointEntity.setPushEnabled(true);
         pointEntity.setPushURL("TestUrl");
@@ -160,7 +160,6 @@ class RabbitBrokerPointTest {
         assertThat(request, notNullValue());
         assertThat(Objects.requireNonNull(request.getBody()).toString(), equalTo(testMessage));
         assertThat(Objects.requireNonNull(request.getHeaders().get("X-flow-name")).toString(), containsString(testFlowName));
-
     }
 
     @Test
