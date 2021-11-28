@@ -5,6 +5,7 @@ import com.feedbeforeflight.marshrutka.models.PointEntityProtocol;
 import com.feedbeforeflight.marshrutka.rabbitmq.RabbitMessageReceiver;
 import com.feedbeforeflight.marshrutka.services.TransferException;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -13,6 +14,7 @@ import org.springframework.amqp.core.QueueInformation;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpEntity;
@@ -32,6 +34,8 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
     @Getter private boolean pushEnabled;
     @Getter private PointEntityProtocol pushProtocol;
 
+    @Getter private RestTemplate restTemplate;
+
     private final AtomicInteger messagesSent = new AtomicInteger(0);
     private final AtomicInteger messagesReceived = new AtomicInteger(0);
     private final AtomicInteger messagesQueued = new AtomicInteger(0);
@@ -45,7 +49,7 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
     private Queue queue;
 
     @Getter private long lastSendToClientAttempt = 0;
-    @Getter boolean sendToClientFault = false;
+    @Getter private boolean sendToClientFault = false;
 
     @Override
     public int getMessagesSent() {
@@ -79,18 +83,20 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
         this.pushURL = pointEntity.getPushURL();
         this.active = pointEntity.isActive();
         this.pushEnabled = pointEntity.isPushEnabled();
+        this.pushProtocol = pointEntity.getPushProtocol();
 
         if (!active || !pushEnabled) {
             powerOffListener();
             return;
         }
 
-        log.debug("Starting listener container for receive. Point [" + name +"]");
+        log.debug("Starting listener container for receive. Point [" + name + "]");
 
         // todo: if it should receive smth, set listener container
         this.queue = new Queue(this.name);
         amqpAdmin.declareQueue(this.queue);
 
+        this.restTemplate = applicationContext.getBean(RestTemplate.class);
         this.container = applicationContext.getBean(SimpleMessageListenerContainer.class);
         container.setQueueNames(this.queue.getName());
         container.setMessageListener(new MessageListenerAdapter(new RabbitMessageReceiver(this)));
@@ -109,13 +115,12 @@ public class RabbitBrokerPoint implements BrokerPoint, ApplicationContextAware {
         container.shutdown();
         container.removeQueueNames(this.queue.getName());
         container = null;
+        restTemplate = null;
     }
 
     @Override
     public void messageReceived(String message, String flowName) throws TransferException {
         log.debug("Receiving message. Flow name: [" + flowName + "]");
-
-        RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "text/html; charset=utf-8");

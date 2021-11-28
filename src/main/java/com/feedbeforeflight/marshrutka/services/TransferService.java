@@ -36,8 +36,20 @@ public class TransferService implements MessageBrokerServiceNotificationClient {
         }
     }
 
+    public void sendDirect(BrokerPoint sourcePoint,
+                           BrokerPoint destinationPoint,
+                           String flowName, String message) throws TransferException{
+        HandledMessage handledMessage = messageBroker.createHandledMessage(sourcePoint.getName(), destinationPoint.getName(), flowName, message);
+
+        sendDirect(handledMessage);
+    }
+
     public HandledMessage receive(BrokerPoint receiver) throws TransferException {
         return messageBroker.receive(receiver);
+    }
+
+    public BrokerPoint getPoint(String name) {
+        return messageBroker.getPoint(name).orElse(null);
     }
 
     @Override

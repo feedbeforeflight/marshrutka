@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class PointEntityServiceTest {
 
     @MockBean
@@ -39,7 +41,7 @@ class PointEntityServiceTest {
 
         List<PointEntity> points = pointService.getAll();
 
-        Mockito.verify(pointRepository, Mockito.times(1)).findAll();
+        Mockito.verify(pointRepository, Mockito.times(2)).findAll();
         assertThat(points, hasSize(3));
         assertThat(points.get(0), notNullValue());
         assertThat(points.get(0), sameInstance(point1));

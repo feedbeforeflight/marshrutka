@@ -5,7 +5,9 @@ import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class MessageBrokerConfiguration {
@@ -29,6 +31,13 @@ public class MessageBrokerConfiguration {
     @Scope("prototype")
     BrokerPoint brokerPoint(AmqpTemplate amqpTemplate, AmqpAdmin amqpAdmin) {
         return new RabbitBrokerPoint(amqpTemplate, amqpAdmin);
+    }
+
+    @Bean
+    @Lazy
+    @Scope("prototype")
+    RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
 }
