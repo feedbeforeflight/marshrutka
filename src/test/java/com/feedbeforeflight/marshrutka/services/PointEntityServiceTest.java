@@ -2,14 +2,17 @@ package com.feedbeforeflight.marshrutka.services;
 
 import com.feedbeforeflight.marshrutka.dao.PointRepository;
 import com.feedbeforeflight.marshrutka.models.PointEntity;
+import com.feedbeforeflight.marshrutka.transport.MessageBrokerManager;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,7 @@ import static org.hamcrest.Matchers.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
+//@ExtendWith(SpringExtension.class)
 class PointEntityServiceTest {
 
     @MockBean
