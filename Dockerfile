@@ -1,16 +1,18 @@
 FROM openjdk:18-jdk-alpine
 
+RUN mkdir /opt/marshrutka
+RUN mkdir /opt/marshrutka/config
+
 RUN addgroup -S spring && adduser -S spring -G spring
+#RUN groupadd -r app && useradd -r -gapp app
 USER spring:spring
 
 ARG JAR_FILE=target/marshrutka.jar
 #ARG PROP_FILE=./database.properties
 
-RUN MKDIR /opt/marshrutka
 WORKDIR /opt/marshrutka
 COPY ${JAR_FILE} marshrutka.jar
 
-RUN MKDIR /opt/marshrutka/config
 WORKDIR /opt/marshrutka/config
 #COPY ${PROP_FILE} database.properties
 

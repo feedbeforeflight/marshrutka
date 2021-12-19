@@ -15,9 +15,9 @@ class MarshrutkaApplicationTests {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    void contextLoads() {
-
-    }
+//    @Test
+//    void contextLoads() {
+//
+//    }
 
 }

@@ -89,10 +89,10 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.37.0</version>
-                <configuration>
-                    <registry>hub.docker.com:443</registry>
-                </configuration>
+                <version>0.38.1</version>
+<!--                <configuration>-->
+<!--                    <registry>hub.docker.com:443</registry>-->
+<!--                </configuration>-->
                 <executions>
                     <execution>
                         <id>Build docker container</id>
